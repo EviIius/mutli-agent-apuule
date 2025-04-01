@@ -1,0 +1,181 @@
+/* --- CSS Variables for Landing Page --- */
+:root {
+    /* Dark Mode Defaults */
+    --lp-bg-color: #1F1F1F;             /* Overall background */
+    --lp-text-color: #E5E5E5;           /* Primary text */
+    --lp-input-bg: #2D2D30;             /* Input background */
+    --lp-button-bg: #007ACC;            /* Accent button color */
+    --lp-button-bg-hover: #0A84FF;      /* Button hover color */
+    /* Light Mode Overrides will be applied when .light is added */
+  }
+  
+  .landing-container.light {
+    --lp-bg-color: #F3F3F3;
+    --lp-text-color: #212121;
+    --lp-input-bg: #F3F3F3;
+    --lp-button-bg: #007ACC;
+    --lp-button-bg-hover: #0A84FF;
+  }
+  
+  /* --- Global Reset for Landing Page --- */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;  /* Lock to one screen */
+    font-family: 'Inter', sans-serif;
+  }
+  
+  /* --- Landing Page Container --- */
+  .landing-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* hero at top, footer at bottom */
+    align-items: center;
+    height: 100vh;
+    background: var(--lp-bg-color);
+    color: var(--lp-text-color);
+    box-sizing: border-box;
+    padding: 1rem;
+  }
+  
+  /* --- Hero Section --- */
+  .landing-hero {
+    text-align: center;
+    animation: fadeIn 1s ease-out;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .landing-title {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .landing-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 1.25rem;
+    color: var(--lp-text-color);
+  }
+  
+  /* --- Input Bar --- */
+  .landing-input-bar {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .landing-input-bar input {
+    width: 260px;
+    padding: 0.6rem 1rem;
+    border-radius: 30px;
+    border: 1px solid #5a5f6a;
+    background-color: var(--lp-input-bg);
+    color: var(--lp-text-color);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+  }
+  
+  .landing-input-bar input:focus {
+    outline: none;
+    border-color: var(--lp-button-bg);
+  }
+  
+  .landing-input-bar button {
+    background-color: var(--lp-button-bg);
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  
+  .landing-input-bar button:hover {
+    background-color: var(--lp-button-bg-hover);
+    transform: scale(1.05);
+  }
+  
+  /* --- Feature Highlights Section --- */
+  .feature-highlights {
+    text-align: center;
+    animation: fadeIn 1s ease-out;
+    margin: 0.5rem 0;
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .feature-highlights h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .feature {
+    flex: 0 1 220px;
+    max-width: 240px;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    text-align: left;
+  }
+  
+  .feature:hover {
+    transform: scale(1.05);
+  }
+  
+  .feature h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .feature p {
+    font-size: 0.95rem;
+    color: #ccc;
+  }
+  
+  /* --- Footer Section --- */
+  .landing-footer {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem;
+    background-color: #2C2C2C;
+    color: #aaa;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+  }
+  
+  .landing-footer p {
+    margin: 0.4rem 0;
+  }
+  
+  .landing-footer a {
+    color: var(--lp-button-bg);
+    margin: 0 0.5rem;
+    text-decoration: none;
+  }
+  
+  .landing-footer a:hover {
+    text-decoration: underline;
+  }
+  
+  /* --- Animations --- */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
