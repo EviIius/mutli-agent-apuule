@@ -389,3 +389,23 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   
+  .export-under-bubble {
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: flex-end; /* or flex-start/center if you prefer */
+  }
+  
+  .export-under-bubble .export-btn {
+    background-color: var(--chat-button-bg);
+    color: #fff;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .export-under-bubble .export-btn:hover {
+    background-color: var(--chat-button-bg-hover);
+  }
+  

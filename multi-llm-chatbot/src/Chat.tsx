@@ -5,7 +5,7 @@ interface Message {
   text: string;
   sender: 'user' | 'bot';
   timestamp: number;
-  // Optionally, add avatarUrl if needed
+  debugInfo?: string;
 }
 
 interface Conversation {
@@ -18,24 +18,26 @@ interface ChatProps {
   initialMessage?: string;
 }
 
+const GEMINI_API_KEY = "put_your_api_key_here"; // Replace with your actual API key
+
+const modelCapabilities: Record<string, string> = {
+  'models/gemini-1.5-pro-latest': 'Gemini 1.5 Pro: 2M tokens, 8K output, multimodal',
+  'models/gemini-1.5-flash-001': 'Gemini 1.5 Flash: 1M tokens, fast + multimodal',
+  'models/gemini-2.0-flash-001': 'Gemini 2.0 Flash: 1M tokens, versatile multimodal',
+};
+
 const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
-  // LLM Options
   const llmOptions = [
-    { label: 'OpenAI GPT-3.5', value: 'gpt-3.5' },
-    { label: 'OpenAI GPT-4', value: 'gpt-4' },
-    { label: 'Anthropic Claude', value: 'anthropic' },
-    { label: 'Cohere Command', value: 'cohere-command' },
+    { label: 'Gemini 1.5 Pro', value: 'models/gemini-1.5-pro-latest' },
+    { label: 'Gemini 1.5 Flash', value: 'models/gemini-1.5-flash-001' },
+    { label: 'Gemini 2.0 Flash', value: 'models/gemini-2.0-flash-001' },
   ];
+
   const [selectedLLM, setSelectedLLM] = useState<string>(llmOptions[0].value);
-
-  // Theme: "dark" or "light"
+  const [previousLLM, setPreviousLLM] = useState<string>(llmOptions[0].value);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-
-  // Sidebar & UI States
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [botTyping, setBotTyping] = useState(false);
-
-  // Conversations & Messages
   const [conversations, setConversations] = useState<Conversation[]>([
     { id: 1, title: 'New Conversation', messages: [] },
   ]);
@@ -48,7 +50,6 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
     (conv) => conv.id === selectedConversationId
   );
 
-  // Use the initial message from landing page if provided
   useEffect(() => {
     if (initialMessage && !hasUsedInitialMessage) {
       setHasUsedInitialMessage(true);
@@ -57,28 +58,41 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
         sender: 'user',
         timestamp: Date.now(),
       };
-
       setBotTyping(true);
-      setTimeout(() => {
-        const botMsg: Message = {
-          text: `Hello! This is a simulated response using ${selectedLLM}.`,
-          sender: 'bot',
-          timestamp: Date.now(),
-        };
-        updateConversationMessages(userMsg, botMsg);
-        setBotTyping(false);
-      }, 1500);
+      handleSendMessage(userMsg.text, userMsg);
     }
   }, [initialMessage, hasUsedInitialMessage, selectedLLM]);
 
-  // Auto-scroll on new messages or typing indicator change
   useEffect(() => {
     if (chatWindowRef.current) {
       chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
     }
   }, [selectedConversation?.messages, botTyping]);
 
-  // Update conversation messages and update title if it's a new conversation
+  useEffect(() => {
+    if (selectedLLM !== previousLLM) {
+      const newId =
+        conversations.length > 0
+          ? Math.max(...conversations.map((c) => c.id)) + 1
+          : 1;
+      const newConversation: Conversation = {
+        id: newId,
+        title: `Switched to ${llmOptions.find((l) => l.value === selectedLLM)?.label}`,
+        messages: [
+          {
+            text: `Switched to ${llmOptions.find((l) => l.value === selectedLLM)?.label}`,
+            sender: 'bot',
+            timestamp: Date.now(),
+            debugInfo: modelCapabilities[selectedLLM],
+          },
+        ],
+      };
+      setConversations((prev) => [newConversation, ...prev]);
+      setSelectedConversationId(newId);
+      setPreviousLLM(selectedLLM);
+    }
+  }, [selectedLLM]);
+
   const updateConversationMessages = (...msgs: Message[]) => {
     if (!selectedConversation) return;
     const updatedMessages = [...selectedConversation.messages, ...msgs];
@@ -103,28 +117,53 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
     );
   };
 
-  // Send a message
-  const handleSendMessage = () => {
-    if (!input.trim() || !selectedConversation) return;
-    const userMsg: Message = {
-      text: input,
+  const handleSendMessage = async (textOverride?: string, messageOverride?: Message) => {
+    const userText = textOverride ?? input;
+    if (!userText.trim() || !selectedConversation) return;
+    const userMsg: Message = messageOverride ?? {
+      text: userText,
       sender: 'user',
       timestamp: Date.now(),
     };
     setBotTyping(true);
-    setInput('');
-    setTimeout(() => {
+    if (!messageOverride) setInput('');
+
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/${selectedLLM}:generateContent?key=${GEMINI_API_KEY}`;
+      console.log('Calling:', endpoint);
+      const geminiResponse = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: userMsg.text }] }],
+        }),
+      });
+      const data = await geminiResponse.json();
+      console.log('Gemini Response:', data);
+      const botReply =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        data?.candidates?.[0]?.content?.parts?.[0] ||
+        JSON.stringify(data);
+
       const botMsg: Message = {
-        text: `Hello! This is a simulated response using ${selectedLLM}.`,
+        text: botReply,
+        sender: 'bot',
+        timestamp: Date.now(),
+        debugInfo: `Model: ${selectedLLM}\n${modelCapabilities[selectedLLM]}`,
+      };
+      updateConversationMessages(userMsg, botMsg);
+    } catch (error: any) {
+      const errorMsg: Message = {
+        text: `Error calling Gemini API: ${error.message || error.toString()}`,
         sender: 'bot',
         timestamp: Date.now(),
       };
-      updateConversationMessages(userMsg, botMsg);
+      updateConversationMessages(userMsg, errorMsg);
+    } finally {
       setBotTyping(false);
-    }, 1500);
+    }
   };
 
-  // Create new conversation
   const handleNewChat = () => {
     const newId =
       conversations.length > 0
@@ -139,18 +178,15 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
     setSelectedConversationId(newId);
   };
 
-  // Select conversation from sidebar and optionally close sidebar
   const handleSelectConversation = (id: number) => {
     setSelectedConversationId(id);
     setSidebarOpen(false);
   };
 
-  // Toggle sidebar
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Export current conversation as a text file
   const handleExport = () => {
     if (!selectedConversation) return;
     const textContent = selectedConversation.messages
@@ -165,14 +201,12 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
     URL.revokeObjectURL(url);
   };
 
-  // Toggle theme between dark and light
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   return (
     <div className={`app-container ${theme}`}>
-      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <button className="close-sidebar-btn" onClick={() => setSidebarOpen(false)}>
           ✕
@@ -184,6 +218,7 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
               className={`conversation-item ${
                 conv.id === selectedConversationId ? 'active' : ''
               }`}
+              data-full-title={conv.title}
               onClick={() => handleSelectConversation(conv.id)}
             >
               {conv.title}
@@ -192,15 +227,13 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
         </ul>
       </aside>
 
-      {/* Main Chat Area */}
       <div className="chat-main">
-        {/* Top Bar */}
         <header className="top-bar">
-          <button className="new-chat-btn" onClick={handleNewChat}>
-            + New Chat
-          </button>
           <button className="sidebar-toggle" onClick={toggleSidebar}>
             {sidebarOpen ? 'Hide Sidebar' : 'Show Sidebar'}
+          </button>
+          <button className="new-chat-btn" onClick={handleNewChat}>
+            + New Chat
           </button>
           <select
             className="llm-select"
@@ -213,24 +246,36 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
               </option>
             ))}
           </select>
-          <button className="export-btn" onClick={handleExport}>
-            Export
-          </button>
           <button className="theme-toggle-btn" onClick={toggleTheme}>
             {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
           </button>
         </header>
 
-        {/* Chat Window */}
         <div className="chat-window" ref={chatWindowRef}>
-          {selectedConversation?.messages.map((msg, idx) => (
-            <div key={idx} className={`message ${msg.sender}`}>
-              <div className="message-text">{msg.text}</div>
-              <div className="message-timestamp">
-                {new Date(msg.timestamp).toLocaleTimeString()}
+          {selectedConversation?.messages.map((msg, idx) => {
+            const isLast = idx === selectedConversation.messages.length - 1;
+            const isBot = msg.sender === 'bot';
+            return (
+              <div key={idx} className={`message ${msg.sender}`}>
+                <div className="message-text">
+                  {msg.text}
+                  {msg.debugInfo && (
+                    <pre className="debug-info">{msg.debugInfo}</pre>
+                  )}
+                </div>
+                <div className="message-timestamp">
+                  {new Date(msg.timestamp).toLocaleTimeString()}
+                </div>
+                {isBot && isLast && (
+                  <div className="export-under-bubble">
+                    <button className="export-btn" onClick={handleExport}>
+                      Export
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
           {botTyping && (
             <div className="typing-indicator">
               <div className="spinner">
@@ -242,7 +287,6 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
           )}
         </div>
 
-        {/* Chat Input */}
         <div className="chat-input">
           <input
             type="text"
@@ -253,7 +297,7 @@ const Chat: React.FC<ChatProps> = ({ initialMessage = '' }) => {
               if (e.key === 'Enter') handleSendMessage();
             }}
           />
-          <button onClick={handleSendMessage}>Send</button>
+          <button onClick={() => handleSendMessage()}>Send</button>
         </div>
       </div>
     </div>
