@@ -18,7 +18,7 @@ interface ChatProps {
   initialMessage?: string;
 }
 
-const GEMINI_API_KEY = "put_your_api_key_here"; // Replace with your actual API key
+const GEMINI_API_KEY = ""; // Replace with your actual API key
 
 const modelCapabilities: Record<string, string> = {
   'models/gemini-1.5-pro-latest': 'Gemini 1.5 Pro: 2M tokens, 8K output, multimodal',
