@@ -22,8 +22,8 @@ interface ChatProps {
 }
 
 // Replace with your actual keys
-const GEMINI_API_KEY = "";
-const MISTRAL_API_KEY = "";
+const GEMINI_API_KEY = "AIzaSyA_Ktd6VSI0yuFtjljeOJJ8ocqKE3RyChY";
+const MISTRAL_API_KEY = "2Zlzy8W5gejZmNEB3s1qb69bZToljrqE";
 
 const llmOptions = [
   { label: '--- Google ---', value: '', disabled: true },
