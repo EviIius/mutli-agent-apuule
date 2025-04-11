@@ -13,11 +13,26 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSendFirstMessage }) => {
     onSendFirstMessage(firstMessage.trim());
   };
 
+  const scrollToModels = () => {
+    const section = document.getElementById('model-showcase-section');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="landing-container">
+      {/* Sticky Header Navigation */}
+      <header className="landing-nav">
+        <h1 className="landing-title">Multi-App LLM</h1>
+        <nav className="nav-buttons">
+          <button onClick={handleSend}>Get Started</button>
+          <button className="view-models-btn" onClick={scrollToModels}>View Models</button>
+        </nav>
+      </header>
+
       {/* Hero Section */}
       <div className="landing-hero">
-        <h1 className="landing-title">Multi-App LLM</h1>
         <p className="landing-subtitle">
           Your AI companion awaits. Experience multi-LLM power at your fingertips.
         </p>
@@ -31,7 +46,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSendFirstMessage }) => {
               if (e.key === 'Enter') handleSend();
             }}
           />
-          <button onClick={handleSend}>Get Started</button>
         </div>
       </div>
 
@@ -52,7 +66,29 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSendFirstMessage }) => {
             <p>Save and share your chat history easily for future reference.</p>
           </div>
         </div>
-        {/* Removed the "Explore More Features" button */}
+      </div>
+
+      {/* Model Info Section */}
+      <div className="model-showcase" id="model-showcase-section">
+        <h2>Supported LLMs</h2>
+        <div className="model-grid">
+          <div className="model-card">
+            <h3>Gemini 1.5 Pro</h3>
+            <p>2M context tokens, multimodal, 8K output</p>
+          </div>
+          <div className="model-card">
+            <h3>Gemini 2.0 Flash</h3>
+            <p>Fast inference, efficient 1M token handling</p>
+          </div>
+          <div className="model-card">
+            <h3>Mistral Small</h3>
+            <p>Lightweight, fast, open-source friendly</p>
+          </div>
+          <div className="model-card upcoming">
+            <h3>Mistral Large</h3>
+            <p><em>Coming Soon</em> — High-capacity performance</p>
+          </div>
+        </div>
       </div>
 
       {/* Footer Section */}
