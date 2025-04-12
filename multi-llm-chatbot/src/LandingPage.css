@@ -112,20 +112,31 @@ body::-webkit-scrollbar-track {
   border-color: var(--lp-button-bg);
 }
 
-.landing-input-bar button {
+/* New circular arrow button next to the input */
+.submit-arrow-btn {
   background-color: var(--lp-button-bg);
   color: #fff;
   border: none;
-  padding: 0.6rem 1rem;
-  border-radius: 30px;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-size: 1rem;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.landing-input-bar button:hover {
+.submit-arrow-btn:hover {
   background-color: var(--lp-button-bg-hover);
   transform: scale(1.05);
+}
+
+.arrow-icon {
+  width: 20px;
+  height: 20px;
+  stroke: #fff;
+  fill: none;
 }
 
 /* --- Feature Highlights Section --- */

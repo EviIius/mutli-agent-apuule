@@ -26,7 +26,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSendFirstMessage }) => {
       <header className="landing-nav">
         <h1 className="landing-title">Multi-App LLM</h1>
         <nav className="nav-buttons">
-          <button onClick={handleSend}>Get Started</button>
+          {/* Removed arrow button; keep “View Models” only */}
           <button className="view-models-btn" onClick={scrollToModels}>View Models</button>
         </nav>
       </header>
@@ -46,6 +46,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSendFirstMessage }) => {
               if (e.key === 'Enter') handleSend();
             }}
           />
+          {/* Move the arrow button here, next to the input */}
+          <button onClick={handleSend} className="submit-arrow-btn">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="arrow-icon"
+            >
+              <path d="M15 11l-3-3m0 0l-3 3m3-3v8" />
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -96,21 +112,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSendFirstMessage }) => {
         <p>Contact us at: <strong>dev@domain.com</strong></p>
         <p>
           Developer GitHubs:
-          <a
-            href="https://github.com/developer1"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Developer1
-          </a>
+          <a href="https://github.com/developer1" target="_blank" rel="noopener noreferrer">Developer1</a>
           |
-          <a
-            href="https://github.com/developer2"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Developer2
-          </a>
+          <a href="https://github.com/developer2" target="_blank" rel="noopener noreferrer">Developer2</a>
         </p>
       </footer>
     </div>
